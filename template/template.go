@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -43,21 +42,23 @@ func (e *Error) Error() string {
 	return "HTTP Response Status: " + strconv.Itoa(e.HttpStatus) + ", message: " + e.Message
 }
 
-func Create() Template {
-	var SendgridApiToken = os.Getenv("SENDGRID_TOKEN")
-	var SendgridTemplateId = os.Getenv("SENDGRID_TEMPLATE_ID")
-
+func Create(ApiToken string) Template {
 	req, err := http.NewRequest(
-		"GET",
-		"https://api.sendgrid.com/v3/templates/"+SendgridTemplateId,
-		strings.NewReader(""),
+		"POST",
+		"https://api.sendgrid.com/v3/templates",
+		strings.NewReader(`
+			{
+				"name":"test",
+				"generation":"dynamic"
+			}
+		`),
 	)
 	if err != nil {
 		log.Fatal("Error reading request. ", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Set("Authorization", "Bearer "+SendgridApiToken)
+	req.Header.Set("Authorization", "Bearer "+ApiToken)
 
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 10}
@@ -81,13 +82,10 @@ func Create() Template {
 	return responseData
 }
 
-func Get() Template {
-	var SendgridApiToken = os.Getenv("SENDGRID_TOKEN")
-	var SendgridTemplateId = os.Getenv("SENDGRID_TEMPLATE_ID")
-
+func Get(ApiToken string, TemplateId string) Template {
 	req, err := http.NewRequest(
 		"GET",
-		"https://api.sendgrid.com/v3/templates/"+SendgridTemplateId,
+		"https://api.sendgrid.com/v3/templates/"+TemplateId,
 		strings.NewReader(""),
 	)
 	if err != nil {
@@ -95,7 +93,7 @@ func Get() Template {
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Set("Authorization", "Bearer "+SendgridApiToken)
+	req.Header.Set("Authorization", "Bearer "+ApiToken)
 
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 10}
@@ -119,9 +117,7 @@ func Get() Template {
 	return responseData
 }
 
-func List() Templates {
-	var SendgridApiToken = os.Getenv("SENDGRID_TOKEN")
-
+func List(ApiToken string) Templates {
 	req, err := http.NewRequest(
 		"GET",
 		"https://api.sendgrid.com/v3/templates?generations=dynamic",
@@ -132,7 +128,7 @@ func List() Templates {
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Set("Authorization", "Bearer "+SendgridApiToken)
+	req.Header.Set("Authorization", "Bearer "+ApiToken)
 
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 10}
@@ -156,13 +152,10 @@ func List() Templates {
 	return responseData
 }
 
-func Delete() (bool, error) {
-	var SendgridApiToken = os.Getenv("SENDGRID_TOKEN")
-	var SendgridTemplateId = os.Getenv("SENDGRID_TEMPLATE_ID")
-
+func Delete(ApiToken string, TemplateId string) (bool, error) {
 	req, err := http.NewRequest(
 		"DELETE",
-		"https://api.sendgrid.com/v3/templates/"+SendgridTemplateId,
+		"https://api.sendgrid.com/v3/templates/"+TemplateId,
 		strings.NewReader(""),
 	)
 	if err != nil {
@@ -170,7 +163,7 @@ func Delete() (bool, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Set("Authorization", "Bearer "+SendgridApiToken)
+	req.Header.Set("Authorization", "Bearer "+ApiToken)
 
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 10}
