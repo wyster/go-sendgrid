@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -14,10 +13,9 @@ import (
 func main() {
 	var SendgridApiToken = os.Getenv("SENDGRID_TOKEN")
 	var SendgridTemplateId = os.Getenv("SENDGRID_TEMPLATE_ID")
-	fmt.Println(SendgridApiToken)
 
 	req, err := http.NewRequest(
-		"GET",
+		"DELETE",
 		"https://api.sendgrid.com/v3/templates/"+SendgridTemplateId,
 		strings.NewReader(""),
 	)
@@ -42,31 +40,4 @@ func main() {
 
 	fmt.Println("Response status:", resp.Status)
 	fmt.Println(string(bodyBytes))
-
-	type TemplateVersions []struct {
-		Id          string `json:"id"`
-		UserId      int    `json:"user_id"`
-		TemplateId  string `json:"template_id"`
-		Active      int    `json:"active"`
-		Name        string `json:"name"`
-		HtmlContent string `json:"html_content"`
-	}
-
-	type Template struct {
-		Id         string           `json:"id"`
-		Name       string           `json:"name"`
-		Generation string           `json:"generation"`
-		UpdatedAt  string           `json:"updated_at"`
-		Versions   TemplateVersions `json:"versions"`
-	}
-
-	var responseData Template
-
-	err = json.Unmarshal(bodyBytes, &responseData)
-	if err != nil {
-		log.Fatal("Error reading response. ", err)
-	}
-
-	fmt.Println(responseData.Id)
-	fmt.Printf("Response: %+v", responseData)
 }
