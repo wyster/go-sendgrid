@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/wyster/go-sendgrid/template"
+	"sendgrid/template"
 )
 
 func main() {
