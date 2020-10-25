@@ -28,7 +28,7 @@ type Template struct {
 	Versions   Versions `json:"versions"`
 }
 
-func create() Template {
+func Create() Template {
 	var SendgridApiToken = os.Getenv("SENDGRID_TOKEN")
 	var SendgridTemplateId = os.Getenv("SENDGRID_TEMPLATE_ID")
 	fmt.Println(SendgridApiToken)
