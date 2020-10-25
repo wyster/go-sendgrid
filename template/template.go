@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -30,6 +31,16 @@ type Template struct {
 
 type Templates struct {
 	Templates []Template `json:"templates"`
+}
+
+// Error reports an error and the operation and URL that caused it.
+type Error struct {
+	HttpStatus int
+	Message    string
+}
+
+func (e *Error) Error() string {
+	return "HTTP Response Status: " + strconv.Itoa(e.HttpStatus) + ", message: " + e.Message
 }
 
 func Create() Template {
@@ -143,4 +154,38 @@ func List() Templates {
 	}
 
 	return responseData
+}
+
+func Delete() (bool, error) {
+	var SendgridApiToken = os.Getenv("SENDGRID_TOKEN")
+	var SendgridTemplateId = os.Getenv("SENDGRID_TEMPLATE_ID")
+
+	req, err := http.NewRequest(
+		"DELETE",
+		"https://api.sendgrid.com/v3/templates/"+SendgridTemplateId,
+		strings.NewReader(""),
+	)
+	if err != nil {
+		log.Fatal("Error reading request. ", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("Authorization", "Bearer "+SendgridApiToken)
+
+	// Set client timeout
+	client := &http.Client{Timeout: time.Second * 10}
+
+	fmt.Println(req.Header)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("Error reading response. ", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 204 {
+		return true, nil
+	}
+
+	return false, &Error{resp.StatusCode, resp.Status}
 }
