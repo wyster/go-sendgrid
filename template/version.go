@@ -45,7 +45,7 @@ func GetVersion(ApiToken string, TemplateId string, TemplateVersion string) Vers
 	return responseData
 }
 
-func CreateVersion(ApiToken string, TemplateId string) (Version, error) {
+func CreateVersion(ApiToken string, TemplateId string, Name string) (Version, error) {
 	var responseData Version
 
 	req, err := http.NewRequest(
@@ -55,9 +55,9 @@ func CreateVersion(ApiToken string, TemplateId string) (Version, error) {
 			{
 				"template_id": "%s",
 				"active": 1,
-				"name": "test"
+				"name": "%s"
 			}
-		`, TemplateId)),
+		`, TemplateId, Name)),
 	)
 	if err != nil {
 		log.Fatal("Error reading request. ", err)

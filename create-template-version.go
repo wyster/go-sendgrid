@@ -8,7 +8,11 @@ import (
 )
 
 func main() {
-	responseData, err := template.CreateVersion(os.Getenv("SENDGRID_TOKEN"), os.Getenv("SENDGRID_TEMPLATE_ID"))
+	responseData, err := template.CreateVersion(
+		os.Getenv("SENDGRID_TOKEN"),
+		os.Getenv("SENDGRID_TEMPLATE_ID"),
+		"test",
+	)
 	if err != nil {
 		log.Fatal("Template version not created! ", err)
 	}
