@@ -25,6 +25,14 @@ type Templates struct {
 	Templates []Template `json:"templates"`
 }
 
+func (templates Templates) IdsList() []string {
+	var list []string
+	for _, template := range templates.Templates {
+		list = append(list, template.Id)
+	}
+	return list
+}
+
 // Error reports an error and the operation and URL that caused it.
 type Error struct {
 	HttpStatus int
