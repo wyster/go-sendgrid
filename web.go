@@ -20,10 +20,10 @@ func templatesListHandler(w http.ResponseWriter, r *http.Request) {
 func templateShowHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/template/show/"):]
 	responseData := template.Get(os.Getenv("SENDGRID_TOKEN"), id)
-	if len(responseData.Versions) > 0 {
+	if len(responseData.Versions) > 0 && responseData.Versions[0].Active == 1 {
 		fmt.Fprintf(w, "%s", responseData.Versions[0].HtmlContent)
 	} else {
-		fmt.Fprintf(w, "%s", "template versions not found")
+		fmt.Fprintf(w, "%s", "Active template version not found")
 	}
 }
 
