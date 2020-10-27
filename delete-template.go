@@ -13,6 +13,6 @@ func main() {
 		log.Fatal("Template not deleted! ", err)
 	}
 	if deleted {
-		fmt.Println("Deleted!")
+		fmt.Println("Created!")
 	}
 }
