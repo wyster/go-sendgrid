@@ -6,41 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
-
-type Versions []struct {
-	Id          string `json:"id"`
-	UserId      int    `json:"user_id"`
-	TemplateId  string `json:"template_id"`
-	Active      int    `json:"active"`
-	Name        string `json:"name"`
-	HtmlContent string `json:"html_content"`
-}
-
-type Template struct {
-	Id         string   `json:"id"`
-	Name       string   `json:"name"`
-	Generation string   `json:"generation"`
-	UpdatedAt  string   `json:"updated_at"`
-	Versions   Versions `json:"versions"`
-}
-
-type Templates struct {
-	Templates []Template `json:"templates"`
-}
-
-// Error reports an error and the operation and URL that caused it.
-type Error struct {
-	HttpStatus int
-	Message    string
-}
-
-func (e *Error) Error() string {
-	return "HTTP Response Status: " + strconv.Itoa(e.HttpStatus) + ", message: " + e.Message
-}
 
 func Create(ApiToken string) Template {
 	req, err := http.NewRequest(
