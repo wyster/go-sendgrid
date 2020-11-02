@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"go-sendgrid/template"
+	"github.com/wyster/go-sendgrid/template"
 	"log"
 	"os"
 )
