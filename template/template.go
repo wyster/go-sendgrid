@@ -10,7 +10,9 @@ import (
 	"time"
 )
 
-func Create(ApiToken string) Template {
+func Create(ApiToken string) (Template, error) {
+	var responseData Template
+
 	req, err := http.NewRequest(
 		"POST",
 		"https://api.sendgrid.com/v3/templates",
@@ -22,7 +24,7 @@ func Create(ApiToken string) Template {
 		`),
 	)
 	if err != nil {
-		log.Fatal("Error reading request. ", err)
+		return responseData, &Error{0, "Error reading request. " + err.Error()}
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -31,33 +33,35 @@ func Create(ApiToken string) Template {
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 10}
 
-	fmt.Println(req.Header)
-
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{0, "Error reading response. " + err.Error()}
 	}
+	if resp.StatusCode != 201 {
+		return responseData, &Error{resp.StatusCode, resp.Status}
+	}
+
 	defer resp.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 
-	var responseData Template
-
 	err = json.Unmarshal(bodyBytes, &responseData)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{resp.StatusCode, "Error reading response. " + err.Error()}
 	}
 
-	return responseData
+	return responseData, nil
 }
 
-func Get(ApiToken string, TemplateId string) Template {
+func Get(ApiToken string, TemplateId string) (Template, error) {
+	var responseData Template
+
 	req, err := http.NewRequest(
 		"GET",
 		"https://api.sendgrid.com/v3/templates/"+TemplateId,
 		strings.NewReader(""),
 	)
 	if err != nil {
-		log.Fatal("Error reading request. ", err)
+		return responseData, &Error{0, "Error reading request. " + err.Error()}
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -70,29 +74,33 @@ func Get(ApiToken string, TemplateId string) Template {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{0, "Error reading response. " + err.Error()}
 	}
+	if resp.StatusCode != 200 {
+		return responseData, &Error{resp.StatusCode, resp.Status}
+	}
+
 	defer resp.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 
-	var responseData Template
-
 	err = json.Unmarshal(bodyBytes, &responseData)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{resp.StatusCode, "Error reading response. " + err.Error()}
 	}
 
-	return responseData
+	return responseData, nil
 }
 
-func List(ApiToken string) Templates {
+func List(ApiToken string) (Templates, error) {
+	var responseData Templates
+
 	req, err := http.NewRequest(
 		"GET",
 		"https://api.sendgrid.com/v3/templates?generations=dynamic",
 		strings.NewReader(""),
 	)
 	if err != nil {
-		log.Fatal("Error reading request. ", err)
+		return responseData, &Error{0, "Error reading request. " + err.Error()}
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -101,23 +109,23 @@ func List(ApiToken string) Templates {
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 10}
 
-	fmt.Println(req.Header)
-
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{0, "Error reading response. " + err.Error()}
 	}
+	if resp.StatusCode != 200 {
+		return responseData, &Error{resp.StatusCode, resp.Status}
+	}
+
 	defer resp.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 
-	var responseData Templates
-
 	err = json.Unmarshal(bodyBytes, &responseData)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{resp.StatusCode, "Error reading response. " + err.Error()}
 	}
 
-	return responseData
+	return responseData, nil
 }
 
 func Delete(ApiToken string, TemplateId string) (bool, error) {

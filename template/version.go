@@ -4,20 +4,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 )
 
-func GetVersion(ApiToken string, TemplateId string, TemplateVersion string) Version {
+func GetVersion(ApiToken string, TemplateId string, TemplateVersion string) (Version, error) {
+	var responseData Version
+
 	req, err := http.NewRequest(
 		"GET",
 		"https://api.sendgrid.com/v3/templates/"+TemplateId+"/versions/"+TemplateVersion,
 		strings.NewReader(""),
 	)
 	if err != nil {
-		log.Fatal("Error reading request. ", err)
+		return responseData, &Error{0, "Error reading request. " + err.Error()}
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -26,23 +27,23 @@ func GetVersion(ApiToken string, TemplateId string, TemplateVersion string) Vers
 	// Set client timeout
 	client := &http.Client{Timeout: time.Second * 10}
 
-	fmt.Println(req.Header)
-
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{0, "Error reading response. " + err.Error()}
 	}
+	if resp.StatusCode != 200 {
+		return responseData, &Error{resp.StatusCode, resp.Status}
+	}
+
 	defer resp.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 
-	var responseData Version
-
 	err = json.Unmarshal(bodyBytes, &responseData)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{resp.StatusCode, "Error reading response. " + err.Error()}
 	}
 
-	return responseData
+	return responseData, nil
 }
 
 func CreateVersion(ApiToken string, TemplateId string, Name string) (Version, error) {
@@ -60,7 +61,7 @@ func CreateVersion(ApiToken string, TemplateId string, Name string) (Version, er
 		`, TemplateId, Name)),
 	)
 	if err != nil {
-		log.Fatal("Error reading request. ", err)
+		return responseData, &Error{0, "Error reading request. " + err.Error()}
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -73,19 +74,19 @@ func CreateVersion(ApiToken string, TemplateId string, Name string) (Version, er
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{0, "Error reading response. " + err.Error()}
 	}
+	if resp.StatusCode != 201 {
+		return responseData, &Error{resp.StatusCode, resp.Status}
+	}
+
 	defer resp.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 
 	err = json.Unmarshal(bodyBytes, &responseData)
 	if err != nil {
-		log.Fatal("Error reading response. ", err)
+		return responseData, &Error{resp.StatusCode, "Error reading response. " + err.Error()}
 	}
 
-	if resp.StatusCode == 201 {
-		return responseData, nil
-	}
-
-	return responseData, &Error{resp.StatusCode, resp.Status}
+	return responseData, nil
 }

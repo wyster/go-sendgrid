@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"go-sendgrid/template"
 	"log"
 	"os"
-	"sendgrid/template"
 )
 
 func main() {
